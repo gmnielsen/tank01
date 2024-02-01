@@ -35,6 +35,11 @@ public class Drivetrain extends SubsystemBase {
     m_leftLeader.addFollower(m_leftFollow);
     m_rightLeader.addFollower(m_rightFollow);
 
+    // invert the polarity of the right side of the robot
+    // such the forward is positive motion on the left and negative motion on the right
+    m_rightLeader.setInverted(isInverted:true);
+    
+
   }
 
   @Override
