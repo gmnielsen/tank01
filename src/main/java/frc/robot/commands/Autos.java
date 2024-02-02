@@ -4,14 +4,20 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Drivetrain;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
-  public static Command exampleAuto(ExampleSubsystem subsystem) {
-    return Commands.sequence(subsystem.exampleMethodCommand(), new ExampleCommand(subsystem));
+  public static Command simpleAuto(Drivetrain m_drive) {
+    return new FunctionalCommand(
+      m_drive::resetEncoders,
+      () -> m_drive.arcadeDrive(0.5, 0.0),
+      interrupt -> m_drive.arcadeDrive(0, 0),
+      () -> m_drive.getAverageDistance() >= 20,
+      m_drive);
   }
 
   private Autos() {
