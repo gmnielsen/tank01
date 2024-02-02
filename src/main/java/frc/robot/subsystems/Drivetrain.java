@@ -20,9 +20,9 @@ public class Drivetrain extends SubsystemBase {
 
   // declare the four motors
   private final CANSparkMax m_leftLeader = new CANSparkMax(Drive.kLeftMotorIDLead,MotorType.kBrushless);
-  private final CANSparkMax m_rightLeader = new CANSparkMax(Drive.kRightMotorIDLead,MotorType.kBrushless);
+  private final CANSparkMax m_rightLeader = new CANSparkMax(Drive.kRightMotorIDFollow,MotorType.kBrushless);
   private final CANSparkMax m_leftFollow = new CANSparkMax(Drive.kLeftMotorIDFollow,MotorType.kBrushless);
-  private final CANSparkMax m_rightFollow = new CANSparkMax(Drive.kRightMotorIDFollow,MotorType.kBrushless);
+  private final CANSparkMax m_rightFollow = new CANSparkMax(Drive.kRightMotorIDLead,MotorType.kBrushless);
 
   // declare the drivetrain
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
@@ -38,15 +38,15 @@ public class Drivetrain extends SubsystemBase {
     SendableRegistry.addChild(m_drive, m_rightLeader);
 
     // reset all motors to default values
-    m_leftLeader.restoreFactoryDefaults();
-    m_rightLeader.restoreFactoryDefaults();
-    m_leftFollow.restoreFactoryDefaults();
-    m_rightFollow.restoreFactoryDefaults();
+    //m_leftLeader.restoreFactoryDefaults();
+    //m_rightLeader.restoreFactoryDefaults();
+    //m_leftFollow.restoreFactoryDefaults();
+    //m_rightFollow.restoreFactoryDefaults();
 
     // invert the polarity of the right side of the robot
     // such that forward is positive motion on the left and negative motion on the right
     m_rightLeader.setInverted(true);
-    m_rightFollow.setInverted(true);
+    //m_rightFollow.setInverted(true);
     
     // pair the motors
     // one motor - the leader - controls the other - the follow
@@ -59,6 +59,12 @@ public class Drivetrain extends SubsystemBase {
     m_leftFollow.setOpenLoopRampRate(Drive.kRampRate);
     m_rightFollow.setOpenLoopRampRate(Drive.kRampRate);
 
+    // make the motors brake and not coast
+    m_leftLeader.setIdleMode(Drive.kIdleMode);
+    m_leftFollow.setIdleMode(Drive.kIdleMode);
+    m_rightLeader.setIdleMode(Drive.kIdleMode);
+    m_rightFollow.setIdleMode(Drive.kIdleMode);
+
     // define the encoders
     // these will be the encoders inside the NEO motors,
     // NOT the encoders on the drive axle
@@ -69,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
     m_leftEncoder.setPosition(0.0);
     m_rightEncoder.setPosition(0.0);
     // invert the values for the right encoder
-    m_rightEncoder.setInverted(true);
+    // m_rightEncoder.setInverted(true);
 
     // other driving parameters
     m_drive.setDeadband(Drive.kDeadBand);
@@ -78,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
 
   // create driving method - arcade controls
   public void arcadeDrive(double fwd, double rot) {
-    m_drive.arcadeDrive(fwd, rot);
+    m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot);
   }
 
   // set speed, usually reduced and full speeds
@@ -95,9 +101,7 @@ public class Drivetrain extends SubsystemBase {
     arcadeDrive(0.0, 0.0);
     // flip each motor
     m_leftLeader.setInverted(flipLeft);
-    m_leftFollow.setInverted(flipLeft);
     m_rightLeader.setInverted(flipRight);
-    m_rightFollow.setInverted(flipRight);
   }
 
   // reset the encoders
