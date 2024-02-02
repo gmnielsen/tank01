@@ -81,6 +81,25 @@ public class Drivetrain extends SubsystemBase {
     m_drive.arcadeDrive(fwd, rot);
   }
 
+  // set speed, usually reduced and full speeds
+  public void setSpeed(double speed){
+    m_drive.setMaxOutput(speed);
+  }
+
+  // reverse the robot, front is back and back is front
+  public void reverseOrientation(){
+    // get the opposite of the current state
+    boolean flipLeft = ! m_leftLeader.getInverted();
+    boolean flipRight = ! m_rightLeader.getInverted();
+    // stop moving
+    arcadeDrive(0.0, 0.0);
+    // flip each motor
+    m_leftLeader.setInverted(flipLeft);
+    m_leftFollow.setInverted(flipLeft);
+    m_rightLeader.setInverted(flipRight);
+    m_rightFollow.setInverted(flipRight);
+  }
+
   // reset the encoders
   public void resetEncoders(){
     m_leftEncoder.setPosition(0.0);
