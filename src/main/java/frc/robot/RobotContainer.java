@@ -35,12 +35,6 @@ public class RobotContainer {
   private final XboxController m_driverController =
       new XboxController(OperatorConstants.kDriverControllerPort);
 
-  // Autonomous commands
-  private final Command m_simpleAuto = Autos.simpleAuto(m_drive);
-  // A complex auto routine that drives forward, drops a hatch, and then drives backward.
-  private final Command m_simpleAuto2 = Autos.simpleAuto(m_drive);
-
-
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -59,10 +53,11 @@ public class RobotContainer {
           m_drive)
     );
 
-    m_chooser.setDefaultOption("Simple Auto", m_simpleAuto);
-    m_chooser.addOption("Simple Auto again", m_simpleAuto2);
-
-        // Put the chooser on the dashboard
+    // autonomous chooser
+    // allows us to pick different auto routines from the dashboard
+    m_chooser.setDefaultOption("Simple Auto", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
+    m_chooser.addOption("Simple Auto again", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
+    // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
 
     // Put subsystems to dashboard.

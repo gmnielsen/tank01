@@ -19,19 +19,22 @@ import edu.wpi.first.wpilibj.XboxController;
 public final class Constants {
 
   public static class Drive {
+    // identify our motors
     public static final int kLeftMotorIDLead = 11;
     public static final int kLeftMotorIDFollow = 12;
     public static final int kRightMotorIDLead = 13;
     public static final int kRightMotorIDFollow = 14;
 
-    public static final double kRampRate = 0.65;
-    public static final double kDeadBand = 0.15;
-    public static final double kMaxSpeed = 0.8;
+    // tweak our acceleration, minumum motion, maximum motion
+    public static final double kRampRate = 0.65;              // acceleration
+    public static final double kDeadBand = 0.15;              // minimum speed
+    public static final double kMaxSpeed = 0.8;               // maximum speed
     public static final double kReducedSpeed = kMaxSpeed / 2;
     public static final IdleMode kIdleMode = IdleMode.kBrake; //kBrake or kCoast
 
   }
   public static class OperatorConstants {
+    // identify our hand controllers
     public static final int kDriverControllerPort = 0;
 
     /* Xbox buttons
