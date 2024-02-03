@@ -6,6 +6,9 @@ package frc.robot;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.networktables.PubSub;
+import edu.wpi.first.wpilibj.XboxController;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -31,5 +34,25 @@ public final class Constants {
   }
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+    /* Xbox buttons
+     * kA
+     * kB           IN USE flip
+     * kBack
+     * kLeftBumper
+     * kLeftStick
+     * kRightBumper IN USE slow down
+     * kRightStick
+     * kStart
+     * kX
+     * kY
+     * 
+     */
+
+    // flip button switches with each press
+    public static int kFlipButton = XboxController.Button.kB.value;
+    // slow down button needs to be held to slow down the robot
+    public static int kSlowDownButton = XboxController.Button.kRightBumper.value;
+
   }
 }

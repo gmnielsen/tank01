@@ -8,13 +8,19 @@ import frc.robot.Constants.Drive;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -28,8 +34,8 @@ public class RobotContainer {
   private final Drivetrain m_drive = new Drivetrain();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final XboxController m_driverController =
+      new XboxController(OperatorConstants.kDriverControllerPort);
 
   // Autonomous commands
   private final Command m_simpleAuto = Autos.simpleAuto(m_drive);
@@ -43,7 +49,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    configureBindings();
+    configureBindings();    
 
     // A split-stick arcade command, with forward/backward controlled by the left
     // hand, and turning controlled by the right.
@@ -64,7 +70,7 @@ public class RobotContainer {
     // Put subsystems to dashboard.
     Shuffleboard.getTab("Drivetrain").add(m_drive);
 
-        // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
+    // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
     CommandScheduler.getInstance()
         .onCommandInitialize(
             command ->
@@ -80,7 +86,10 @@ public class RobotContainer {
             command ->
                 Shuffleboard.addEventMarker(
                     "Command finished", command.getName(), EventImportance.kNormal));
-  }
+
+    // does this start the camera? Hopefully
+    CameraServer.startAutomaticCapture();
+  } // end RobotContainer constructor
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -100,14 +109,20 @@ public class RobotContainer {
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
+    // INLINE COMMAND
+    // specify the xbox button
+    // specify the condition, then the type of command,
+    // then specify it as inline () ->
+    // then the actual command
+
     // While holding right bumper, drive at reduced speed
-    m_driverController.rightBumper()
-    .onTrue(Commands.runOnce( () -> m_drive.setSpeed(Drive.kReducedSpeed) ) )
-    .onFalse(Commands.runOnce( () -> m_drive.setSpeed(Drive.kMaxSpeed) ) );
+    new JoystickButton ( m_driverController, OperatorConstants.kSlowDownButton)
+      .onTrue(Commands.runOnce( () -> m_drive.setSpeed(Drive.kReducedSpeed) ) )
+      .onFalse(Commands.runOnce( () -> m_drive.setSpeed(Drive.kMaxSpeed) ) );
 
     // switch drive orientation
-    m_driverController.b()
-    .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
+    new JoystickButton ( m_driverController, OperatorConstants.kFlipButton)
+      .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
   }
 
   /**
