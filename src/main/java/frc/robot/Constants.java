@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 
-import edu.wpi.first.networktables.PubSub;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
