@@ -38,6 +38,7 @@ public class Drivetrain extends SubsystemBase {
     SendableRegistry.addChild(m_drive, m_rightLeader);
 
     // reset all motors to default values
+    // REMOVED: motors were still resetting while new settings applied
     //m_leftLeader.restoreFactoryDefaults();
     //m_rightLeader.restoreFactoryDefaults();
     //m_leftFollow.restoreFactoryDefaults();
@@ -94,11 +95,11 @@ public class Drivetrain extends SubsystemBase {
 
   // reverse the robot, front is back and back is front
   public void reverseOrientation(){
+    // stop moving
+    arcadeDrive(0.0, 0.0);
     // get the opposite of the current state
     boolean flipLeft = ! m_leftLeader.getInverted();
     boolean flipRight = ! m_rightLeader.getInverted();
-    // stop moving
-    arcadeDrive(0.0, 0.0);
     // flip each motor
     m_leftLeader.setInverted(flipLeft);
     m_rightLeader.setInverted(flipRight);
