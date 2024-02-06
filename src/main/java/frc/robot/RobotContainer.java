@@ -15,12 +15,11 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import edu.wpi.first.cameraserver.CameraServer;
+
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
-import edu.wpi.first.util.PixelFormat;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -63,11 +62,12 @@ public class RobotContainer {
       Commands.run(
         () ->
           m_drive.arcadeDrive(
-            -m_driverController.getLeftY(), -m_driverController.getRightX() ),
+            // -m_driverController.getLeftY(), -m_driverController.getRightX() ),
+            m_driverController.getRightTriggerAxis()-m_driverController.getLeftTriggerAxis(), -m_driverController.getRightX() ),
           m_drive)
     );
 
-    // autonomous chooser
+    // autonomous chooser()
     // allows us to pick different auto routines from the dashboard
     m_chooser.setDefaultOption("Simple Auto", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
     m_chooser.addOption("Simple Auto again", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
