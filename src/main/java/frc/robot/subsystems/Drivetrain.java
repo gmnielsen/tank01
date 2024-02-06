@@ -85,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
 
   // create driving method - arcade controls
   public void arcadeDrive(double fwd, double rot) {
-    m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot);
+    m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Math.abs(Math.pow(rot,2.0)));
   }
 
   // set speed, usually reduced and full speeds

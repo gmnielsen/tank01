@@ -10,6 +10,12 @@ import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -37,6 +43,12 @@ public class RobotContainer {
 
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
+
+  // Camera
+  private UsbCamera camera01 = new UsbCamera("Front Camera", 0);
+  private UsbCamera camera02 = new UsbCamera("Rear Camera", 1);
+  private VideoSink videoServer;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -81,7 +93,8 @@ public class RobotContainer {
                     "Command finished", command.getName(), EventImportance.kNormal));
 
     // does this start the camera? Hopefully
-    CameraServer.startAutomaticCapture();
+    CameraServer.startAutomaticCapture(0);
+    CameraServer.startAutomaticCapture(1);
   } // end RobotContainer constructor
 
   /**
@@ -117,6 +130,7 @@ public class RobotContainer {
     new JoystickButton ( m_driverController, OperatorConstants.kFlipButton)
       .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
