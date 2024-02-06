@@ -9,6 +9,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
@@ -45,10 +50,7 @@ public class RobotContainer {
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   // Camera
-  private UsbCamera camera01 = new UsbCamera("Front Camera", 0);
-  private UsbCamera camera02 = new UsbCamera("Rear Camera", 1);
-  private VideoSink videoServer;
-
+  Thread m_visionThread;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -75,6 +77,8 @@ public class RobotContainer {
     // Put subsystems to dashboard.
     Shuffleboard.getTab("Drivetrain").add(m_drive);
 
+    cameraInit();
+
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
     CommandScheduler.getInstance()
         .onCommandInitialize(
@@ -92,9 +96,7 @@ public class RobotContainer {
                 Shuffleboard.addEventMarker(
                     "Command finished", command.getName(), EventImportance.kNormal));
 
-    // does this start the camera? Hopefully
-    CameraServer.startAutomaticCapture(0);
-    CameraServer.startAutomaticCapture(1);
+    
   } // end RobotContainer constructor
 
   /**
@@ -131,6 +133,78 @@ public class RobotContainer {
       .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
   }
 
+  private void cameraInit(){
+    m_visionThread =
+
+        new Thread(
+
+            () -> {
+
+              // Get the UsbCamera from CameraServer
+
+              UsbCamera camera = CameraServer.startAutomaticCapture();
+
+              // Set the resolution
+
+              camera.setResolution(640, 480);
+
+
+              // Get a CvSink. This will capture Mats from the camera
+
+              CvSink cvSink = CameraServer.getVideo();
+
+              // Setup a CvSource. This will send images back to the Dashboard
+
+              CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
+
+
+              // Mats are very memory expensive. Lets reuse this Mat.
+
+              Mat mat = new Mat();
+
+
+              // This cannot be 'true'. The program will never exit if it is. This
+
+              // lets the robot stop this thread when restarting robot code or
+
+              // deploying.
+
+              while (!Thread.interrupted()) {
+
+                // Tell the CvSink to grab a frame from the camera and put it
+
+                // in the source mat.  If there is an error notify the output.
+
+                if (cvSink.grabFrame(mat) == 0) {
+
+                  // Send the output the error.
+
+                  outputStream.notifyError(cvSink.getError());
+
+                  // skip the rest of the current iteration
+
+                  continue;
+
+                }
+
+                // Put a rectangle on the image
+
+                Imgproc.rectangle(
+
+                    mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
+
+                // Give the output stream a new image to display
+
+                outputStream.putFrame(mat);
+
+              }
+
+            });
+
+    m_visionThread.setDaemon(true);
+
+    m_visionThread.start();
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
