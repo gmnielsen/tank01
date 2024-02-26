@@ -47,14 +47,18 @@ public final class Constants {
      * kRightStick
      * kStart
      * kX
-     * kY
+     * kY           camera
      * 
      */
 
-    // flip button switches with each press
+    // flip button switches robot orientation with each press
     public static int kFlipButton = XboxController.Button.kB.value;
+    // camera button changes between cameras
+    public static int kCameraButton = XboxController.Button.kY.value;
     // slow down button needs to be held to slow down the robot
     public static int kSlowDownButton = XboxController.Button.kRightBumper.value;
+
+  
 
   }
 }

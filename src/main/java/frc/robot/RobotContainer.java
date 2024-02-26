@@ -9,17 +9,10 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
 import edu.wpi.first.cameraserver.CameraServer;
 
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
-
+import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -50,6 +43,10 @@ public class RobotContainer {
 
   // Camera
   Thread m_visionThread;
+  UsbCamera camera01;
+  UsbCamera camera02;
+  VideoSink camServer;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -123,6 +120,27 @@ public class RobotContainer {
     // then specify it as inline () ->
     // then the actual command
 
+    // when triggered, switch to camera02
+    //new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
+    //  .toggleOnTrue(() -> camServer.setSource(camera01));
+      //.toggleOnFalse(() -> camServer.set (camera02));
+    new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
+      .toggleOnFalse(Commands.run( () -> camServer.setSource(camera01) ) )
+      .toggleOnTrue(Commands.run( () -> camServer.setSource(camera02) ) );
+
+    // when triggered, switch to camera01
+
+    /*
+     * if (joy1.getTriggerPressed()) {
+        System.out.println("Setting camera 2");
+        server.setSource(camera2);
+    } else if (joy1.getTriggerReleased()) {
+        System.out.println("Setting camera 1");
+        server.setSource(camera1);
+    }
+     */
+
+
     // While holding right bumper, drive at reduced speed
     new JoystickButton ( m_driverController, OperatorConstants.kSlowDownButton)
       .onTrue(Commands.runOnce( () -> m_drive.setSpeed(Drive.kReducedSpeed) ) )
@@ -134,75 +152,20 @@ public class RobotContainer {
   }
 
   private void cameraInit(){
-    m_visionThread =
+    m_visionThread = new Thread(
+      () -> {
 
-        new Thread(
+        // Get the UsbCamera from CameraServer
+        camera01 = CameraServer.startAutomaticCapture(0);
+        camera02 = CameraServer.startAutomaticCapture(1);
 
-            () -> {
+        // Set the resolution
+        camera01.setResolution(640, 480);
+        camera02.setResolution(640, 480);
+        camServer = CameraServer.getServer();
 
-              // Get the UsbCamera from CameraServer
-
-              UsbCamera camera = CameraServer.startAutomaticCapture();
-
-              // Set the resolution
-
-              camera.setResolution(640, 480);
-
-
-              // Get a CvSink. This will capture Mats from the camera
-
-              CvSink cvSink = CameraServer.getVideo();
-
-              // Setup a CvSource. This will send images back to the Dashboard
-
-              CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
-
-
-              // Mats are very memory expensive. Lets reuse this Mat.
-
-              Mat mat = new Mat();
-
-
-              // This cannot be 'true'. The program will never exit if it is. This
-
-              // lets the robot stop this thread when restarting robot code or
-
-              // deploying.
-
-              while (!Thread.interrupted()) {
-
-                // Tell the CvSink to grab a frame from the camera and put it
-
-                // in the source mat.  If there is an error notify the output.
-
-                if (cvSink.grabFrame(mat) == 0) {
-
-                  // Send the output the error.
-
-                  outputStream.notifyError(cvSink.getError());
-
-                  // skip the rest of the current iteration
-
-                  continue;
-
-                }
-
-                // Put a rectangle on the image
-
-                Imgproc.rectangle(
-
-                    mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
-
-                // Give the output stream a new image to display
-
-                outputStream.putFrame(mat);
-
-              }
-
-            });
-
+      });
     m_visionThread.setDaemon(true);
-
     m_visionThread.start();
   }
 
@@ -214,4 +177,5 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return m_chooser.getSelected();
   }
+
 }
