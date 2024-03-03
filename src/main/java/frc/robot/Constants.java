@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.playingwithfusion.CANVenom.BrakeCoastMode;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.XboxController;
@@ -33,12 +34,52 @@ public final class Constants {
     public static final IdleMode kIdleMode = IdleMode.kBrake; //kBrake or kCoast
 
   }
-  public static class OperatorConstants {
+
+  public static class Intake {
+    // identify our motors
+    public static final int kSwingMotorID = 15;       // Venom
+    public static final int kIntakeWheelsID = 16;     // Neo
+    public static final int kThrowLeftMotorID = 17;   // Neo
+    public static final int kThrowRightMotorID = 18;  // Neo
+
+    // Venom
+    public static final BrakeCoastMode kSwingIdle = BrakeCoastMode.Brake;
+    public static final double kSwingSpeed = 0.5;
+
+    // Neo
+    public static final double kIntakeWheelsRampRate = 0.9;
+    public static final IdleMode kIntakeWheelsIdle = IdleMode.kBrake;
+    public static final double kIntakeWheelsMax = 0.8;
+    // for correct in or out
+    public static final int kIntakeOrientation = 1;
+
+    public static final double kThrowLeftMotorRampRate = 0.9;
+    public static final double kThrowRightMotorRampRate = 0.9;
+    public static final IdleMode kThrowLeftMotorIdle = IdleMode.kBrake;
+    public static final IdleMode kThrowRightMotorIdle = IdleMode.kBrake;
+    public static final double kThrowLeftMotorMax = 1.0;
+    public static final double kThrowRightMotorMax = 1.0;
+    // for correct in or out
+    public static final int kThrowOrientation = 1; 
+
+    // PID values
+    public static final double KpUp = 2.0;
+    public static final double KdUp = 0.0;
+    public static final double KpDown = 0.3;
+    public static final double KdDown = 0.0;
+    public static final double KBDown = 0.09;           
+    
+  }
+  public static class ControllerConstants {
     // identify our hand controllers
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
+  
+ 
+    
 
     /* Xbox buttons
-     * kA
+     * kA           IN USE swing intake
      * kB           IN USE flip
      * kBack
      * kLeftBumper
@@ -57,6 +98,11 @@ public final class Constants {
     public static int kCameraButton = XboxController.Button.kY.value;
     // slow down button needs to be held to slow down the robot
     public static int kSlowDownButton = XboxController.Button.kRightBumper.value;
+    // swing the intake
+    public static int kSwingButton = XboxController.Button.kA.value;
+    // test controller constant
+    public static XboxController.Button  kTest = XboxController.Button.kBack;
+    //public static int kTest = XboxController.Button.kBack.value;
 
   
 

@@ -4,24 +4,24 @@
 
 package frc.robot;
 
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.Drive;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.Swing;
+import frc.robot.subsystems.Vision;
 
-import edu.wpi.first.cameraserver.CameraServer;
-
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -33,24 +33,32 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drive = new Drivetrain();
+  // private final noteHandler m_NoteHandler = new noteHandler();
+  private final Intake m_intake = new Intake();
+  private final Launcher m_launch = new Launcher();
+  private final Swing m_swing = new Swing();
+  private final Vision m_vision = new Vision();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final XboxController m_driverController =
-      new XboxController(OperatorConstants.kDriverControllerPort);
-
+  private final CommandXboxController m_driverController =
+      new CommandXboxController(ControllerConstants.kDriverControllerPort);
+  private final CommandXboxController m_operatorController =
+        new CommandXboxController(ControllerConstants.kOperatorControllerPort);
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   // Camera
+  /* 
   Thread m_visionThread;
   UsbCamera camera01;
   UsbCamera camera02;
   VideoSink camServer;
-
+  */
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+    
+    // Configure the trigger bindi
     configureBindings();    
 
     // A split-stick arcade command, with forward/backward controlled by the left
@@ -62,6 +70,7 @@ public class RobotContainer {
             // -m_driverController.getLeftY(), -m_driverController.getRightX() ),
             m_driverController.getRightTriggerAxis()-m_driverController.getLeftTriggerAxis(), -m_driverController.getRightX() ),
           m_drive)
+          
     );
 
     // autonomous chooser()
@@ -74,7 +83,7 @@ public class RobotContainer {
     // Put subsystems to dashboard.
     Shuffleboard.getTab("Drivetrain").add(m_drive);
 
-    cameraInit();
+    // cameraInit();
 
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
     CommandScheduler.getInstance()
@@ -124,50 +133,57 @@ public class RobotContainer {
     //new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
     //  .toggleOnTrue(() -> camServer.setSource(camera01));
       //.toggleOnFalse(() -> camServer.set (camera02));
-    new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
-      .toggleOnFalse(Commands.run( () -> camServer.setSource(camera01) ) )
-      .toggleOnTrue(Commands.run( () -> camServer.setSource(camera02) ) );
-
-    // when triggered, switch to camera01
-
-    /*
-     * if (joy1.getTriggerPressed()) {
-        System.out.println("Setting camera 2");
-        server.setSource(camera2);
-    } else if (joy1.getTriggerReleased()) {
-        System.out.println("Setting camera 1");
-        server.setSource(camera1);
-    }
-     */
-
+    //new JoystickButton(m_driverController, ControllerConstants.kCameraButton)
+    m_driverController.y() 
+      .toggleOnFalse(Commands.run( () -> m_vision.source01() ) )
+      .toggleOnTrue(Commands.run( () -> m_vision.source02() ) );
 
     // While holding right bumper, drive at reduced speed
-    new JoystickButton ( m_driverController, OperatorConstants.kSlowDownButton)
+    //new JoystickButton (m_driverController, ControllerConstants.kSlowDownButton)
+    m_driverController.rightBumper()
       .onTrue(Commands.runOnce( () -> m_drive.setSpeed(Drive.kReducedSpeed) ) )
       .onFalse(Commands.runOnce( () -> m_drive.setSpeed(Drive.kMaxSpeed) ) );
 
     // switch drive orientation
-    new JoystickButton ( m_driverController, OperatorConstants.kFlipButton)
+    //new JoystickButton ( m_driverController, ControllerConstants.kSwingButton)
+    m_driverController.a()
+      .onTrue(Commands.runOnce( () -> m_swing.swing(), m_swing))
+      .onFalse(Commands.runOnce( () -> m_swing.swingOff(), m_swing));
+
+    // switch drive orientation
+    //new JoystickButton ( m_driverController, ControllerConstants.kFlipButton)
+    m_driverController.b()
       .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
+
+    // Operator/Tester Controls
+    m_operatorController.povUp().whileTrue(new StartEndCommand(() -> m_swing.setSpeed(0.1), () -> m_swing.setSpeed(0), m_swing));
+    m_operatorController.povDown().whileTrue(new StartEndCommand(() -> m_swing.setSpeed(-0.1), () -> m_swing.setSpeed(0), m_swing));
+
+
+    // Default commands
+    m_intake.setDefaultCommand(new RunCommand(() -> m_intake.setSpeed(m_operatorController.getLeftY()), m_intake));
+    m_launch.setDefaultCommand(new RunCommand(() -> m_launch.setSpeed(m_operatorController.getRightY()), m_launch));
   }
 
-  private void cameraInit(){
-    m_visionThread = new Thread(
-      () -> {
-
-        // Get the UsbCamera from CameraServer
-        camera01 = CameraServer.startAutomaticCapture(0);
-        camera02 = CameraServer.startAutomaticCapture(1);
-
-        // Set the resolution
-        camera01.setResolution(640, 480);
-        camera02.setResolution(640, 480);
-        camServer = CameraServer.getServer();
-
-      });
-    m_visionThread.setDaemon(true);
-    m_visionThread.start();
-  }
+  /*
+   private void cameraInit(){
+      m_visionThread = new Thread(
+        () -> {
+  
+          // Get the UsbCamera from CameraServer
+          camera01 = CameraServer.startAutomaticCapture(0);
+          camera02 = CameraServer.startAutomaticCapture(1);
+  
+          // Set the resolution
+          camera01.setResolution(640, 480);
+          camera02.setResolution(640, 480);
+          camServer = CameraServer.getServer();
+  
+        });
+      m_visionThread.setDaemon(true);
+      m_visionThread.start();
+    }
+   */
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
