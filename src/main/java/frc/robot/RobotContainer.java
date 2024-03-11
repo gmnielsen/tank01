@@ -5,14 +5,12 @@
 package frc.robot;
 
 import frc.robot.Constants.Drive;
+import frc.robot.Constants.Intake;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.noteHandler;
 
-import edu.wpi.first.cameraserver.CameraServer;
-
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -22,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -33,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drive = new Drivetrain();
+  private final noteHandler m_NoteHandler = new noteHandler();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController m_driverController =
@@ -42,10 +42,10 @@ public class RobotContainer {
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   // Camera
-  Thread m_visionThread;
-  UsbCamera camera01;
-  UsbCamera camera02;
-  VideoSink camServer;
+  //Thread m_visionThread;
+  //UsbCamera camera01;
+  //UsbCamera camera02;
+  //VideoSink camServer;
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -60,21 +60,24 @@ public class RobotContainer {
         () ->
           m_drive.arcadeDrive(
             // -m_driverController.getLeftY(), -m_driverController.getRightX() ),
-            m_driverController.getRightTriggerAxis()-m_driverController.getLeftTriggerAxis(), -m_driverController.getRightX() ),
+            m_driverController.getRightTriggerAxis()-m_driverController.getLeftTriggerAxis(), -m_driverController.getLeftX() ),
+            //.getRightX() ),
           m_drive)
     );
 
     // autonomous chooser()
     // allows us to pick different auto routines from the dashboard
     m_chooser.setDefaultOption("Simple Auto", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
-    m_chooser.addOption("Simple Auto again", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
+    m_chooser.addOption("Simple Auto Wall", Commands.runOnce( () -> Autos.autoWall2(m_drive) ) ) ;
+            //Commands.print("auto wall option selected") );
     // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
 
     // Put subsystems to dashboard.
     Shuffleboard.getTab("Drivetrain").add(m_drive);
 
-    cameraInit();
+    //
+    //cameraInit();
 
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
     CommandScheduler.getInstance()
@@ -124,10 +127,10 @@ public class RobotContainer {
     //new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
     //  .toggleOnTrue(() -> camServer.setSource(camera01));
       //.toggleOnFalse(() -> camServer.set (camera02));
-    new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
+    /*new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
       .toggleOnFalse(Commands.run( () -> camServer.setSource(camera01) ) )
       .toggleOnTrue(Commands.run( () -> camServer.setSource(camera02) ) );
-
+    */
     // when triggered, switch to camera01
 
     /*
@@ -146,11 +149,31 @@ public class RobotContainer {
       .onTrue(Commands.runOnce( () -> m_drive.setSpeed(Drive.kReducedSpeed) ) )
       .onFalse(Commands.runOnce( () -> m_drive.setSpeed(Drive.kMaxSpeed) ) );
 
+    // swing orientation and Venom reporting
+    new JoystickButton ( m_driverController, OperatorConstants.kSwingButton)
+      .onTrue(Commands.runOnce( () -> m_NoteHandler.swing() ) )
+      .onTrue(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) 
+      .onFalse(Commands.runOnce( () -> m_NoteHandler.swingOff() ) )
+      .onFalse(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) ;
+
     // switch drive orientation
     new JoystickButton ( m_driverController, OperatorConstants.kFlipButton)
       .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
+
+    // test button 
+    new JoystickButton(m_driverController, OperatorConstants.kTestButton)
+      .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
+      .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;
+
+    new POVButton(m_driverController, OperatorConstants.kFullUp)
+      .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
+      .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
+
+
   }
 
+
+  /* 
   private void cameraInit(){
     m_visionThread = new Thread(
       () -> {
@@ -168,6 +191,7 @@ public class RobotContainer {
     m_visionThread.setDaemon(true);
     m_visionThread.start();
   }
+  */
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

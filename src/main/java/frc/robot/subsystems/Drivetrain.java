@@ -20,9 +20,9 @@ public class Drivetrain extends SubsystemBase {
 
   // declare the four motors
   private final CANSparkMax m_leftLeader = new CANSparkMax(Drive.kLeftMotorIDLead,MotorType.kBrushless);
-  private final CANSparkMax m_rightLeader = new CANSparkMax(Drive.kRightMotorIDFollow,MotorType.kBrushless);
+  private final CANSparkMax m_rightLeader = new CANSparkMax(Drive.kRightMotorIDLead,MotorType.kBrushless);
   private final CANSparkMax m_leftFollow = new CANSparkMax(Drive.kLeftMotorIDFollow,MotorType.kBrushless);
-  private final CANSparkMax m_rightFollow = new CANSparkMax(Drive.kRightMotorIDLead,MotorType.kBrushless);
+  private final CANSparkMax m_rightFollow = new CANSparkMax(Drive.kRightMotorIDFollow,MotorType.kBrushless);
 
   // declare the drivetrain
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
@@ -85,7 +85,9 @@ public class Drivetrain extends SubsystemBase {
 
   // create driving method - arcade controls
   public void arcadeDrive(double fwd, double rot) {
-    m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Math.abs(Math.pow(rot,2.0)));
+    // m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Math.abs(Math.pow(rot,3.0)));
+  
+    m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Drive.kTurnReduction);
   }
 
   // set speed, usually reduced and full speeds
