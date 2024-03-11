@@ -21,6 +21,16 @@ public final class Autos {
       m_drive);
   }
 
+  public static Command simpleAuto2 (Drivetrain m_drive) {
+    return Commands.sequence(
+      Commands.print("in Autos, starting auto simple 2"),
+      Commands.runOnce ( () -> m_drive.arcadeDrive(1.0,0.0), m_drive ),
+      Commands.waitSeconds(2),
+      Commands.runOnce ( () -> m_drive.arcadeDrive(0,0) ),
+      Commands.print("in Autos, finished auto simple 2")
+    );
+  }
+
   public static Command autoWall(Drivetrain m_drive) {
     return new FunctionalCommand (
       m_drive::resetEncoders,

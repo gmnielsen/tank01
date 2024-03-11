@@ -5,18 +5,15 @@
 package frc.robot;
 
 import frc.robot.Constants.Drive;
-import frc.robot.Constants.Intake;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.noteHandler;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -67,9 +64,16 @@ public class RobotContainer {
 
     // autonomous chooser()
     // allows us to pick different auto routines from the dashboard
-    m_chooser.setDefaultOption("Simple Auto", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
-    m_chooser.addOption("Simple Auto Wall", Commands.runOnce( () -> Autos.autoWall2(m_drive) ) ) ;
-            //Commands.print("auto wall option selected") );
+    m_chooser.setDefaultOption("Simple Auto", Commands.sequence( 
+      Commands.print("simple auto option selected, beginning running simpleAuto2"),
+      Commands.runOnce( () -> Autos.simpleAuto2(m_drive) ),
+      Commands.print("simple auto option selected, finished running simpleAuto2") ) );
+
+    m_chooser.addOption("Simple Auto Wall", Commands.sequence( 
+      Commands.print("auto wall option selected, beginning running autoWall2"),
+      Commands.runOnce( () -> Autos.autoWall2(m_drive) ),
+      Commands.print("auto wall option selected, finished running autoWall2") ) );
+
     // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
 
@@ -80,6 +84,7 @@ public class RobotContainer {
     //cameraInit();
 
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
+    /*
     CommandScheduler.getInstance()
         .onCommandInitialize(
             command ->
@@ -95,7 +100,7 @@ public class RobotContainer {
             command ->
                 Shuffleboard.addEventMarker(
                     "Command finished", command.getName(), EventImportance.kNormal));
-
+  */
     
   } // end RobotContainer constructor
 
@@ -165,10 +170,25 @@ public class RobotContainer {
       .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
       .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;
 
-    new POVButton(m_driverController, OperatorConstants.kFullUp)
+    // D Pad up, intake at set speed going up
+    new POVButton(m_driverController, OperatorConstants.kDPadUp)
+      .onTrue(Commands.runOnce ( () -> m_NoteHandler.moveOrGrabNote() ) )
+      .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
+
+    // D Pad left, intake at full speed goint up
+    new POVButton(m_driverController, OperatorConstants.kDPadLeft)
       .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
       .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
 
+    // D Pad down, intake at set speed going down
+    new POVButton(m_driverController, OperatorConstants.kDPadDown)
+      .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
+      .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
+
+    // D Pad right, not in use
+    new POVButton(m_driverController, OperatorConstants.kDPadDown)
+      .toggleOnTrue ( Commands.print("empty button pressed on") )
+      .toggleOnFalse( Commands.print("empty buttoned pressed off")) ;
 
   }
 

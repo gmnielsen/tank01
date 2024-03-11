@@ -62,6 +62,7 @@ public final class Constants {
     public static final double kIntakeWheelsRampRate = 0.9;
     public static final IdleMode kIntakeWheelsIdle = IdleMode.kBrake;
     public static final double kIntakeWheelsMax = 0.8;
+    public static final double kIntakeSlowRollers = 0.4;
 
     public static final double kThrowLeftMotorRampRate = 0.9;
     public static final double kThrowRightMotorRampRate = 0.9;
@@ -106,8 +107,11 @@ public final class Constants {
     public static int kSwingButton = XboxController.Button.kA.value;
     // test button
     public static int kTestButton = XboxController.Button.kX.value;
-    // full speed up with intake
-    public static int kFullUp = 0;
+    // intake values
+    public static int kDPadUp = 0;      // slow up
+    public static int kDPadLeft = 270;  // fast up
+    public static int kDPadDown = 180;  // slow down
+    public static int kDPadRight = 90;  // not in use
 
   
 

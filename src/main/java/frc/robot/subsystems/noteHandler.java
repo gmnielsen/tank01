@@ -75,7 +75,11 @@ public class noteHandler extends SubsystemBase {
   }
 
   public void sendForThrow(){
-    m_intakeWheels.set(1.0);
+    m_intakeWheels.set(-1.0);
+  }
+
+  public void moveOrGrabNote(){
+    m_intakeWheels.set(Intake.kIntakeSlowRollers);
   }
 
   public void intakeOff(){
