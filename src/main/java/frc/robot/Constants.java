@@ -8,7 +8,6 @@ import com.playingwithfusion.CANVenom.BrakeCoastMode;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -21,12 +20,32 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 public final class Constants {
 
   public static class Auto {
-    public static double perpendicularSubWoofer = 8.0;
-    public static double perpendicularWall = 10;
-    public static double stepsToClicks = 1000;
-    public static double wallSpeed = 0.6;
-    public static double distWall = perpendicularWall * stepsToClicks;
-    public static double kTimeOut = 1.5; // seconds
+    // don't forget direction on speed and rotation !!!
+    public static double sign = 1;
+
+    // just move out of the zone
+    public static double kTO_Out = 1;             // time out sceonds
+    public static double kSP_Out = 0.6*sign;      // percent speed
+    public static double kDist_Out = 3.5;         // feet
+    // out and back
+    public static double kTO_OutAndBack = 2;          // time out seconds
+    public static double kSP_OutAndBack = 0.6*sign;   // percent speed
+    public static double kDist_OutAndBack = 3.5;      // feet
+    // throw from A, out and back
+    public static double kTO_throwA = 6;          // time out seconds
+    public static double kSP_throwA = 0.6*sign;   // percent speed
+    public static double kDist_throwA = 3.5;      // feet
+    public static double kTurn_throwA = 0.2;      // percent rotation
+  // throw from B, out and back
+    public static double kTO_throwB = 6;          // time out seconds
+    public static double kSP_throwB = 0.6*sign;   // percent speed
+    public static double kDist_throwB = 3.5;      // feet
+    public static double kTurn_throwB = 0.2;      // percent rotation
+    // throw from C, out and back
+    public static double kTO_throwC = 6;          // time out seconds
+    public static double kSP_throwC = 0.6*sign;   // percent speed
+    public static double kDist_throwC = 3.5;      // feet
+    public static double kTurn_throwC = 0.2;      // percent rotation
     }
 
   public static class Drive {
@@ -112,8 +131,15 @@ public final class Constants {
     public static int kDPadLeft = 270;  // fast up
     public static int kDPadDown = 180;  // slow down
     public static int kDPadRight = 90;  // not in use
-
+  }
   
-
+  public static class myMath {
+    public static double pi = 3.1415;
+    public static double wheelRadius = 3;
+    public static double inches_to_feet = 12;
+    public static double wheelCircumference = ( 2 * wheelRadius * pi ) / inches_to_feet;
+    public static double gearRatio = 8.46;
+    public static double clicksToOneRoatation = 42 / gearRatio;
+    public static double clicksPerFoot = clicksToOneRoatation / wheelCircumference;
   }
 }

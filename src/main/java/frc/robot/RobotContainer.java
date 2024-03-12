@@ -11,9 +11,11 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.noteHandler;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -34,6 +36,12 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController m_driverController =
       new XboxController(OperatorConstants.kDriverControllerPort);
+
+
+  // autonomous commands
+  private final Command m_simpleAuto = Autos.simpleAuto(m_drive);
+  private final Command m_simpleWall = Autos.autoWall(m_drive);
+  private final Command m_OutAndBack = Autos.simpleOutAndBack (m_drive);
 
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -63,16 +71,13 @@ public class RobotContainer {
     );
 
     // autonomous chooser()
-    // allows us to pick different auto routines from the dashboard
-    m_chooser.setDefaultOption("Simple Auto", Commands.sequence( 
-      Commands.print("simple auto option selected, beginning running simpleAuto2"),
-      Commands.runOnce( () -> Autos.simpleAuto2(m_drive) ),
-      Commands.print("simple auto option selected, finished running simpleAuto2") ) );
 
-    m_chooser.addOption("Simple Auto Wall", Commands.sequence( 
-      Commands.print("auto wall option selected, beginning running autoWall2"),
-      Commands.runOnce( () -> Autos.autoWall2(m_drive) ),
-      Commands.print("auto wall option selected, finished running autoWall2") ) );
+
+    // allows us to pick different auto routines from the dashboard
+    m_chooser.setDefaultOption("Simple Auto", m_simpleAuto);
+
+    m_chooser.addOption("Simple Auto Wall", m_simpleWall );
+    m_chooser.addOption("OutAndBack", m_OutAndBack);
 
     // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
@@ -84,7 +89,6 @@ public class RobotContainer {
     //cameraInit();
 
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
-    /*
     CommandScheduler.getInstance()
         .onCommandInitialize(
             command ->
@@ -100,7 +104,7 @@ public class RobotContainer {
             command ->
                 Shuffleboard.addEventMarker(
                     "Command finished", command.getName(), EventImportance.kNormal));
-  */
+  
     
   } // end RobotContainer constructor
 
@@ -167,23 +171,26 @@ public class RobotContainer {
 
     // test button 
     new JoystickButton(m_driverController, OperatorConstants.kTestButton)
-      .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
-      .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;
+      .onTrue(Commands.print("autoWall is starting, average distance at: ") )
+      .onFalse(Commands.print( String.valueOf( m_drive.getAverageDistance() ) ) );
+  
+  //    .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
+  //    .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;
 
     // D Pad up, intake at set speed going up
     new POVButton(m_driverController, OperatorConstants.kDPadUp)
       .onTrue(Commands.runOnce ( () -> m_NoteHandler.moveOrGrabNote() ) )
-      .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
+      .onFalse(m_NoteHandler.intakeOff() );
 
     // D Pad left, intake at full speed goint up
     new POVButton(m_driverController, OperatorConstants.kDPadLeft)
       .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
-      .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
+      .onFalse(m_NoteHandler.intakeOff() ) ;
 
     // D Pad down, intake at set speed going down
     new POVButton(m_driverController, OperatorConstants.kDPadDown)
       .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
-      .onFalse(Commands.runOnce ( () -> m_NoteHandler.intakeOff() ) ) ;
+      .onFalse(m_NoteHandler.intakeOff() ) ;
 
     // D Pad right, not in use
     new POVButton(m_driverController, OperatorConstants.kDPadDown)

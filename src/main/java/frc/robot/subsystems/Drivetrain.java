@@ -13,6 +13,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -86,8 +87,11 @@ public class Drivetrain extends SubsystemBase {
   // create driving method - arcade controls
   public void arcadeDrive(double fwd, double rot) {
     // m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Math.abs(Math.pow(rot,3.0)));
-  
     m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Drive.kTurnReduction);
+  }
+
+  public Command arcadeMove(double fwd, double rot) {
+    return runOnce( () -> m_drive.arcadeDrive(fwd, rot) );
   }
 
   // set speed, usually reduced and full speeds
@@ -115,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
   
   // get average distance travelled
   public double getAverageDistance(){
-    return ( (m_leftEncoder.getPosition() + m_rightEncoder.getPosition())/2 );
+    return ( (m_leftEncoder.getPosition() + m_rightEncoder.getPosition() )/2 );
   }
 
   @Override
