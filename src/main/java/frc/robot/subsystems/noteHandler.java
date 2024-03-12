@@ -67,6 +67,13 @@ public class noteHandler extends SubsystemBase {
     m_swingMotor.stopMotor();
   }
 
+  public void moveOrGrabNote(){
+    m_intakeWheels.set(Intake.kIntakeSlowRollers);
+  }
+
+  // COMMANDS
+  // these methods return a Command
+
   public Command throwerOn(){
     return Commands.sequence (
       this.runOnce( () -> m_ThrowLeftMotor.set(-1.0) ),
@@ -83,10 +90,6 @@ public class noteHandler extends SubsystemBase {
 
   public Command sendForThrow(){
     return this.runOnce ( () -> m_intakeWheels.set(-1.0) );
-  }
-
-  public void moveOrGrabNote(){
-    m_intakeWheels.set(Intake.kIntakeSlowRollers);
   }
 
   public Command intakeOff(){

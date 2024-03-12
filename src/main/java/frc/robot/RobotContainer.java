@@ -39,9 +39,9 @@ public class RobotContainer {
 
 
   // autonomous commands
-  private final Command m_simpleAuto = Autos.simpleAuto(m_drive);
-  private final Command m_simpleWall = Autos.autoWall(m_drive);
-  private final Command m_OutAndBack = Autos.simpleOutAndBack (m_drive);
+  private final Command m_simpleOut = Autos.simpleOut(m_drive);
+  private final Command m_simpleOutAndBack = Autos.simpleOutAndBack(m_drive);
+  private final Command m_throwFromA = Autos.throwFromA(m_drive, m_NoteHandler);
 
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -74,10 +74,9 @@ public class RobotContainer {
 
 
     // allows us to pick different auto routines from the dashboard
-    m_chooser.setDefaultOption("Simple Auto", m_simpleAuto);
-
-    m_chooser.addOption("Simple Auto Wall", m_simpleWall );
-    m_chooser.addOption("OutAndBack", m_OutAndBack);
+    m_chooser.setDefaultOption("Simple Out", m_simpleOut);
+    m_chooser.addOption("Simple Out and Back", m_simpleOutAndBack );
+    m_chooser.addOption("Throw from pos A", m_throwFromA);
 
     // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
@@ -184,12 +183,12 @@ public class RobotContainer {
 
     // D Pad left, intake at full speed goint up
     new POVButton(m_driverController, OperatorConstants.kDPadLeft)
-      .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
+      .onTrue(m_NoteHandler.sendForThrow() )
       .onFalse(m_NoteHandler.intakeOff() ) ;
 
     // D Pad down, intake at set speed going down
     new POVButton(m_driverController, OperatorConstants.kDPadDown)
-      .onTrue(Commands.runOnce ( () -> m_NoteHandler.sendForThrow() ) )
+      .onTrue(m_NoteHandler.sendForThrow() )
       .onFalse(m_NoteHandler.intakeOff() ) ;
 
     // D Pad right, not in use

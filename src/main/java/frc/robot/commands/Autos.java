@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.Auto;
-import frc.robot.Constants.Drive;
 import frc.robot.Constants.Intake;
 import frc.robot.Constants.myMath;
 import frc.robot.subsystems.Drivetrain;
@@ -39,8 +38,10 @@ public final class Autos {
         () -> m_drive.arcadeDrive(-Auto.kSP_OutAndBack, 0.0),
         interrupt -> m_drive.arcadeDrive(0, 0),
         () -> Math.abs( m_drive.getAverageDistance() ) >= (convert * Auto.kDist_OutAndBack), m_drive)
-        .withTimeout(Auto.kTO_OutAndBack) );
-    }
+        .withTimeout(Auto.kTO_OutAndBack) 
+    );
+  }
+
   // just move out, no getting out of the way
   public static Command simpleOut(Drivetrain m_drive) {
     return new FunctionalCommand(
@@ -49,7 +50,8 @@ public final class Autos {
       interrupt -> m_drive.arcadeDrive(0, 0),
       () -> Math.abs( m_drive.getAverageDistance() ) >= (convert * Auto.kDist_Out),
       m_drive)
-      .withTimeout(Auto.kTO_Out);
+      .withTimeout(Auto.kTO_Out)
+    ;
   }
 
   public static Command throwFromA (Drivetrain m_drive, noteHandler m_NoteHandler){
@@ -83,33 +85,6 @@ public final class Autos {
         m_drive)
         .withTimeout(Auto.kTO_throwA)
     );   
-  }
-
-  public static Command autoWall(Drivetrain m_drive) {
-    return new FunctionalCommand (
-      m_drive::resetEncoders,
-      () -> m_drive.arcadeDrive(0.0, 0.0),//Auto.wallSpeed, 0.0),
-      interrupt -> m_drive.arcadeDrive(0.0, 0.0),
-      () -> m_drive.getAverageDistance() >= 10000, //Auto.distWall,
-      m_drive)
-      .beforeStarting(Commands.print("autoWall is starting" ) )
-      .withTimeout(5); //Auto.kTimeOut);
-  }
-
-  public static Command autoWall2(Drivetrain m_drive) {
-    return Commands.sequence(
-      Commands.print("in auto2"),
-      new FunctionalCommand(
-        m_drive :: resetEncoders,
-        () -> m_drive.arcadeDrive(1.0, 0),
-        interrupt -> m_drive.arcadeDrive(.0, 0.0),
-        () -> m_drive.getAverageDistance() >= 1000
-      ),
-      Commands.waitSeconds(2.0),
-      Commands.runOnce ( () -> m_drive.arcadeDrive(0, 0) )
-    );
-
-
   }
 
   private Autos() {

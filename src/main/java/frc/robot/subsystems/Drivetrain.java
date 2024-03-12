@@ -90,6 +90,8 @@ public class Drivetrain extends SubsystemBase {
     m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Drive.kTurnReduction);
   }
 
+  // COMMAND
+  // this does arcade drive as a Command
   public Command arcadeMove(double fwd, double rot) {
     return runOnce( () -> m_drive.arcadeDrive(fwd, rot) );
   }
