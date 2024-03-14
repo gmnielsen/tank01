@@ -170,8 +170,8 @@ public class RobotContainer {
 
     // test button 
     new JoystickButton(m_driverController, OperatorConstants.kTestButton)
-      .onTrue(Commands.print("autoWall is starting, average distance at: ") )
-      .onFalse(Commands.print( String.valueOf( m_drive.getAverageDistance() ) ) );
+      .onTrue(m_NoteHandler.swingPos() )
+      .onFalse(m_NoteHandler.swingPos());
   
   //    .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
   //    .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;

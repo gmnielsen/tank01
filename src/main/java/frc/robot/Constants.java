@@ -67,13 +67,13 @@ public final class Constants {
 
   public static class Intake {
     // identify our motors
-    public static final int kSwingMotorID = 15;       // Venom
+    public static final int kSwingMotorID = 15;       // Neo
     public static final int kIntakeWheelsID = 16;     // Neo
     public static final int kThrowLeftMotorID = 17;   // Neo
     public static final int kThrowRightMotorID = 18;  // Neo
 
     // Venom
-    public static final BrakeCoastMode kSwingIdle = BrakeCoastMode.Brake;
+    public static final IdleMode kSwingIdle = IdleMode.kBrake;
     public static final double kSwingSpeed = 0.5;
     public static final double kSwingRampRate = 0.3;
 
@@ -93,8 +93,10 @@ public final class Constants {
     // PID values
     public static final double KpUp = 2.0;
     public static final double KdUp = 0.0;
+    public static final double kfUp = 0.184;
     public static final double KpDown = 0.3;
     public static final double KdDown = 0.0;
+    public static final double KfDown = 0.184;
     public static final double KBDown = 0.09;           
     
   }
