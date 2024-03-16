@@ -14,6 +14,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -90,10 +91,11 @@ public class Drivetrain extends SubsystemBase {
     m_drive.arcadeDrive(-fwd*Math.abs(fwd), rot*Drive.kTurnReduction);
   }
 
-  // COMMAND
+  // * * * * * * * * COMMAND
   // this does arcade drive as a Command
   public Command arcadeMove(double fwd, double rot) {
-    return runOnce( () -> m_drive.arcadeDrive(fwd, rot) );
+    return Commands.run( () -> m_drive.arcadeDrive(fwd, rot) 
+    );
   }
 
   // set speed, usually reduced and full speeds

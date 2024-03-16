@@ -42,6 +42,8 @@ public class RobotContainer {
   private final Command m_simpleOut = Autos.simpleOut(m_drive);
   private final Command m_simpleOutAndBack = Autos.simpleOutAndBack(m_drive);
   private final Command m_throwFromA = Autos.throwFromA(m_drive, m_NoteHandler);
+  private final Command m_throwFromB = Autos.throwFromB(m_drive, m_NoteHandler);
+  private final Command m_throwFromC = Autos.throwFromC(m_drive, m_NoteHandler);
 
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -77,6 +79,8 @@ public class RobotContainer {
     m_chooser.setDefaultOption("Simple Out", m_simpleOut);
     m_chooser.addOption("Simple Out and Back", m_simpleOutAndBack );
     m_chooser.addOption("Throw from pos A", m_throwFromA);
+    m_chooser.addOption("Throw from pos B", m_throwFromB);
+    m_chooser.addOption("Throw from pos C", m_throwFromC);
 
     // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
@@ -158,37 +162,38 @@ public class RobotContainer {
       .onFalse(Commands.runOnce( () -> m_drive.setSpeed(Drive.kMaxSpeed) ) );
 
     // swing orientation and Venom reporting
-    new JoystickButton ( m_driverController, OperatorConstants.kSwingButton)
+    /*new JoystickButton ( m_driverController, OperatorConstants.kSwingButton)
       .onTrue(Commands.runOnce( () -> m_NoteHandler.swing() ) )
       .onTrue(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) 
       .onFalse(Commands.runOnce( () -> m_NoteHandler.swingOff() ) )
-      .onFalse(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) ;
+      .onFalse(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) ;*/
 
     // switch drive orientation
     new JoystickButton ( m_driverController, OperatorConstants.kFlipButton)
       .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
 
     // test button 
-    new JoystickButton(m_driverController, OperatorConstants.kTestButton)
+    /*new JoystickButton(m_driverController, OperatorConstants.kTestButton)
       .onTrue(m_NoteHandler.swingPos() )
-      .onFalse(m_NoteHandler.swingPos());
+      .onFalse(m_NoteHandler.swingPos());*/
   
   //    .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
   //    .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;
 
     // D Pad up, intake at set speed going up
     new POVButton(m_driverController, OperatorConstants.kDPadUp)
-      .onTrue(Commands.runOnce ( () -> m_NoteHandler.moveOrGrabNote() ) )
+      .onTrue(m_NoteHandler.intakeSlowUp() ) 
       .onFalse(m_NoteHandler.intakeOff() );
 
     // D Pad left, intake at full speed goint up
     new POVButton(m_driverController, OperatorConstants.kDPadLeft)
       .onTrue(m_NoteHandler.sendForThrow() )
-      .onFalse(m_NoteHandler.intakeOff() ) ;
+      .onFalse(m_NoteHandler.intakeOff() ) 
+      .onFalse(m_NoteHandler.throwerOff());
 
     // D Pad down, intake at set speed going down
     new POVButton(m_driverController, OperatorConstants.kDPadDown)
-      .onTrue(m_NoteHandler.sendForThrow() )
+      .onTrue(m_NoteHandler.intakeSlowDown() )
       .onFalse(m_NoteHandler.intakeOff() ) ;
 
     // D Pad right, not in use

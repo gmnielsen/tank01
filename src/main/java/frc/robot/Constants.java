@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.playingwithfusion.CANVenom.BrakeCoastMode;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.XboxController;
@@ -24,28 +23,30 @@ public final class Constants {
     public static double sign = 1;
 
     // just move out of the zone
-    public static double kTO_Out = 1;             // time out sceonds
-    public static double kSP_Out = 0.6*sign;      // percent speed
-    public static double kDist_Out = 3.5;         // feet
+    public static double kTO_Out = 2;             // time out sceonds
+    public static double kSP_Out = 0.8*sign;      // percent speed
+    public static double kDist_Out = 4.5;         // feet
     // out and back
-    public static double kTO_OutAndBack = 2;          // time out seconds
-    public static double kSP_OutAndBack = 0.6*sign;   // percent speed
-    public static double kDist_OutAndBack = 3.5;      // feet
+    public static double kTO_OutAndBack = 4;          // time out seconds
+    public static double kSP_OutAndBack = 0.8*sign;   // percent speed
+    public static double kDist_OutAndBack = 4.5;      // feet
     // throw from A, out and back
-    public static double kTO_throwA = 6;          // time out seconds
-    public static double kSP_throwA = 0.6*sign;   // percent speed
-    public static double kDist_throwA = 3.5;      // feet
-    public static double kTurn_throwA = 0.2;      // percent rotation
+    public static double kTO_throwA = 2;          // time out seconds
+    public static double kSP_throwA = 0.8*sign;   // percent speed
+    public static double kDist_throwAfirst = 2.0;      // feet
+    public static double kDist_throwAsecond = 5.5;
+    public static double kTurn_throwA = - 0.6;      // rotation value
   // throw from B, out and back
     public static double kTO_throwB = 6;          // time out seconds
     public static double kSP_throwB = 0.6*sign;   // percent speed
     public static double kDist_throwB = 3.5;      // feet
     public static double kTurn_throwB = 0.2;      // percent rotation
     // throw from C, out and back
-    public static double kTO_throwC = 6;          // time out seconds
-    public static double kSP_throwC = 0.6*sign;   // percent speed
-    public static double kDist_throwC = 3.5;      // feet
-    public static double kTurn_throwC = 0.2;      // percent rotation
+    public static double kTO_throwC = 2;          // time out seconds
+    public static double kSP_throwC = 0.8*sign;   // percent speed
+    public static double kDist_throwCfirst = 2.0;      // feet
+    public static double kDist_throwCsecond = 5.5;
+    public static double kTurn_throwC = 0.60;      // percent rotation
     }
 
   public static class Drive {
@@ -72,19 +73,19 @@ public final class Constants {
     public static final int kThrowLeftMotorID = 17;   // Neo
     public static final int kThrowRightMotorID = 18;  // Neo
 
-    // Venom
+    /*// Venom
     public static final IdleMode kSwingIdle = IdleMode.kBrake;
     public static final double kSwingSpeed = 0.5;
-    public static final double kSwingRampRate = 0.3;
+    public static final double kSwingRampRate = 0.3;*/
 
     // Neo
-    public static final double kIntakeWheelsRampRate = 0.9;
+    public static final double kIntakeWheelsRampRate = 0.5;
     public static final IdleMode kIntakeWheelsIdle = IdleMode.kBrake;
     public static final double kIntakeWheelsMax = 0.8;
-    public static final double kIntakeSlowRollers = 0.4;
+    public static final double kIntakeSlowRollers = 0.6;
 
-    public static final double kThrowLeftMotorRampRate = 0.9;
-    public static final double kThrowRightMotorRampRate = 0.9;
+    public static final double kThrowLeftMotorRampRate = 0.5;
+    public static final double kThrowRightMotorRampRate = 0.5;
     public static final IdleMode kThrowLeftMotorIdle = IdleMode.kBrake;
     public static final IdleMode kThrowRightMotorIdle = IdleMode.kBrake;
     public static final double kThrowLeftMotorMax = 1.0;

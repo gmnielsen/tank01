@@ -16,12 +16,12 @@ import java.util.Map;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.Intake;
 
 public class noteHandler extends SubsystemBase {
 
   // declare motor controllers
-  private final CANSparkMax m_swingMotor = new CANSparkMax(Intake.kSwingMotorID, MotorType.kBrushless);
   private final CANSparkMax m_intakeWheels = new CANSparkMax(Intake.kIntakeWheelsID, MotorType.kBrushless);
   private final CANSparkMax m_ThrowLeftMotor = new CANSparkMax(Intake.kThrowLeftMotorID, MotorType.kBrushless);
   private final CANSparkMax m_ThrowRighttMotor = new CANSparkMax(Intake.kThrowRightMotorID, MotorType.kBrushless);
@@ -55,56 +55,11 @@ public class noteHandler extends SubsystemBase {
   /** Creates a new noteHandler. */
   public noteHandler() {
     super();
-    // rampRate for motors
-    m_swingMotor.setIdleMode(Intake.kSwingIdle);
-    m_swingMotor.getEncoder();
-    m_swingMotor.getPIDController();
-    m_swingMotor.setOpenLoopRampRate(Intake.kSwingRampRate);
-  }
-
-  public double swingPosition(){
-    return m_swingMotor.getPosition();
-  }
-  public void swing() {
-    m_swingMotor.set(Intake.kSwingSpeed);
-  }
-
-  public void swingOff(){
-    m_swingMotor.stopMotor();
   }
 
   public void moveOrGrabNote(){
     m_intakeWheels.set(Intake.kIntakeSlowRollers);
   }
-
-  // COMMANDS
-  // these methods return a Command
-
-  
-  // * * * * * * * * * * SWING
-  public Command swingUp(double pos){
-    return Commands.sequence(
-      this.runOnce( () -> m_swingMotor.setPID(sbKp.getDouble(1.6), 0, sbKd.getDouble(0.01), 0.184, 0.0) ),
-      this.runOnce( () -> m_swingMotor.setCommand(ControlMode.PositionControl, pos) ),
-      Commands.print(String.valueOf( m_swingMotor.getPosition() ) ),
-      this.runOnce( () -> m_swingMotor.setBrakeCoastMode(BrakeCoastMode.Brake) )
-      
-    );
-  }
-
-  public Command swingDown(double pos){
-    return Commands.sequence(
-      this.runOnce( () -> m_swingMotor.setPID(sbKpDown.getDouble(0.2), 0, sbKdDown.getDouble(.0), sbKfDown.getDouble(0.184), sbBDown.getDouble(0.088) ) ),
-      this.runOnce( () -> m_swingMotor.setCommand(ControlMode.PositionControl, pos) ),
-      Commands.print(String.valueOf( m_swingMotor.getPosition() ) ),
-      this.runOnce( () -> m_swingMotor.setBrakeCoastMode(BrakeCoastMode.Brake) )
-    );
-  }
-
-  public Command swingPos(){
-    return Commands.print(String.valueOf( m_swingMotor.getPosition() ) );
-  }
-
 
   // * * * * * * * * * * THROWER
   public Command throwerOn(){
@@ -124,15 +79,28 @@ public class noteHandler extends SubsystemBase {
   // * * * * * * * * * * THROWER and INTAKE
 
   public Command sendForThrow(){
-    return this.runOnce ( () -> m_intakeWheels.set(-1.0) );
+    return Commands.sequence(
+      this.throwerOn(),
+      new WaitCommand(Intake.kThrowLeftMotorRampRate),
+      this.intakeFullUp() );
   }
+    
+
 
   
   // * * * * * * * * * * INTAKE
   public Command intakeOff(){
     return this.runOnce( () -> m_intakeWheels.set(0.0) );
   }
-
+  public Command intakeSlowUp() {
+    return this.runOnce(() -> m_intakeWheels.set(-Intake.kIntakeSlowRollers));
+  }
+  public Command intakeSlowDown(){
+    return this.runOnce(() -> m_intakeWheels.set(Intake.kIntakeSlowRollers));  
+  }
+  public Command intakeFullUp(){
+    return this.runOnce(() -> m_intakeWheels.set(-1.0) );
+  }
   
   // * * * * * * * * * * PERIODIC
   @Override
