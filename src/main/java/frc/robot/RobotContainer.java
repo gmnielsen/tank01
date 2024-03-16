@@ -8,17 +8,7 @@ import frc.robot.Constants.Drive;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Drivetrain;
-
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
-import edu.wpi.first.cameraserver.CameraServer;
-
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.UsbCamera;
+import frc.robot.subsystems.noteHandler;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
@@ -29,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -40,16 +31,29 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drive = new Drivetrain();
+  private final noteHandler m_NoteHandler = new noteHandler();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController m_driverController =
       new XboxController(OperatorConstants.kDriverControllerPort);
 
+
+  // autonomous commands
+  private final Command m_simpleOut = Autos.simpleOut(m_drive);
+  private final Command m_simpleOutAndBack = Autos.simpleOutAndBack(m_drive);
+  private final Command m_throwFromA = Autos.throwFromA(m_drive, m_NoteHandler);
+  private final Command m_throwFromB = Autos.throwFromB(m_drive, m_NoteHandler);
+  private final Command m_throwFromC = Autos.throwFromC(m_drive, m_NoteHandler);
+
   // A chooser for autonomous commands
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   // Camera
-  Thread m_visionThread;
+  //Thread m_visionThread;
+  //UsbCamera camera01;
+  //UsbCamera camera02;
+  //VideoSink camServer;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -63,21 +67,29 @@ public class RobotContainer {
         () ->
           m_drive.arcadeDrive(
             // -m_driverController.getLeftY(), -m_driverController.getRightX() ),
-            m_driverController.getRightTriggerAxis()-m_driverController.getLeftTriggerAxis(), -m_driverController.getRightX() ),
+            m_driverController.getRightTriggerAxis()-m_driverController.getLeftTriggerAxis(), -m_driverController.getLeftX() ),
+            //.getRightX() ),
           m_drive)
     );
 
     // autonomous chooser()
+
+
     // allows us to pick different auto routines from the dashboard
-    m_chooser.setDefaultOption("Simple Auto", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
-    m_chooser.addOption("Simple Auto again", Commands.runOnce( () -> Autos.simpleAuto(m_drive) ) );
+    m_chooser.setDefaultOption("Simple Out", m_simpleOut);
+    m_chooser.addOption("Simple Out and Back", m_simpleOutAndBack );
+    m_chooser.addOption("Throw from pos A", m_throwFromA);
+    m_chooser.addOption("Throw from pos B", m_throwFromB);
+    m_chooser.addOption("Throw from pos C", m_throwFromC);
+
     // Put the autonomous chooser on the dashboard
     Shuffleboard.getTab("Autonomous").add(m_chooser);
 
     // Put subsystems to dashboard.
     Shuffleboard.getTab("Drivetrain").add(m_drive);
 
-    cameraInit();
+    //
+    //cameraInit();
 
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
     CommandScheduler.getInstance()
@@ -95,7 +107,7 @@ public class RobotContainer {
             command ->
                 Shuffleboard.addEventMarker(
                     "Command finished", command.getName(), EventImportance.kNormal));
-
+  
     
   } // end RobotContainer constructor
 
@@ -123,88 +135,94 @@ public class RobotContainer {
     // then specify it as inline () ->
     // then the actual command
 
+    // when triggered, switch to camera02
+    //new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
+    //  .toggleOnTrue(() -> camServer.setSource(camera01));
+      //.toggleOnFalse(() -> camServer.set (camera02));
+    /*new JoystickButton(m_driverController, OperatorConstants.kCameraButton)
+      .toggleOnFalse(Commands.run( () -> camServer.setSource(camera01) ) )
+      .toggleOnTrue(Commands.run( () -> camServer.setSource(camera02) ) );
+    */
+    // when triggered, switch to camera01
+
+    /*
+     * if (joy1.getTriggerPressed()) {
+        System.out.println("Setting camera 2");
+        server.setSource(camera2);
+    } else if (joy1.getTriggerReleased()) {
+        System.out.println("Setting camera 1");
+        server.setSource(camera1);
+    }
+     */
+
+
     // While holding right bumper, drive at reduced speed
     new JoystickButton ( m_driverController, OperatorConstants.kSlowDownButton)
       .onTrue(Commands.runOnce( () -> m_drive.setSpeed(Drive.kReducedSpeed) ) )
       .onFalse(Commands.runOnce( () -> m_drive.setSpeed(Drive.kMaxSpeed) ) );
 
+    // swing orientation and Venom reporting
+    /*new JoystickButton ( m_driverController, OperatorConstants.kSwingButton)
+      .onTrue(Commands.runOnce( () -> m_NoteHandler.swing() ) )
+      .onTrue(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) 
+      .onFalse(Commands.runOnce( () -> m_NoteHandler.swingOff() ) )
+      .onFalse(Commands.print(String.valueOf( m_NoteHandler.swingPosition() ) ) ) ;*/
+
     // switch drive orientation
     new JoystickButton ( m_driverController, OperatorConstants.kFlipButton)
       .onTrue(Commands.runOnce( () -> m_drive.reverseOrientation() ) );
+
+    // test button 
+    /*new JoystickButton(m_driverController, OperatorConstants.kTestButton)
+      .onTrue(m_NoteHandler.swingPos() )
+      .onFalse(m_NoteHandler.swingPos());*/
+  
+  //    .onTrue(Commands.runOnce( () -> m_NoteHandler.throwerOn() ) )
+  //    .onFalse(Commands.runOnce( () -> m_NoteHandler.throwerOff() ) ) ;
+
+    // D Pad up, intake at set speed going up
+    new POVButton(m_driverController, OperatorConstants.kDPadUp)
+      .onTrue(m_NoteHandler.intakeSlowUp() ) 
+      .onFalse(m_NoteHandler.intakeOff() );
+
+    // D Pad left, intake at full speed goint up
+    new POVButton(m_driverController, OperatorConstants.kDPadLeft)
+      .onTrue(m_NoteHandler.sendForThrow() )
+      .onFalse(m_NoteHandler.intakeOff() ) 
+      .onFalse(m_NoteHandler.throwerOff());
+
+    // D Pad down, intake at set speed going down
+    new POVButton(m_driverController, OperatorConstants.kDPadDown)
+      .onTrue(m_NoteHandler.intakeSlowDown() )
+      .onFalse(m_NoteHandler.intakeOff() ) ;
+
+    // D Pad right, not in use
+    new POVButton(m_driverController, OperatorConstants.kDPadDown)
+      .toggleOnTrue ( Commands.print("empty button pressed on") )
+      .toggleOnFalse( Commands.print("empty buttoned pressed off")) ;
+
   }
 
+
+  /* 
   private void cameraInit(){
-    m_visionThread =
+    m_visionThread = new Thread(
+      () -> {
 
-        new Thread(
+        // Get the UsbCamera from CameraServer
+        camera01 = CameraServer.startAutomaticCapture(0);
+        camera02 = CameraServer.startAutomaticCapture(1);
 
-            () -> {
+        // Set the resolution
+        camera01.setResolution(640, 480);
+        camera02.setResolution(640, 480);
+        camServer = CameraServer.getServer();
 
-              // Get the UsbCamera from CameraServer
-
-              UsbCamera camera = CameraServer.startAutomaticCapture();
-
-              // Set the resolution
-
-              camera.setResolution(640, 480);
-
-
-              // Get a CvSink. This will capture Mats from the camera
-
-              CvSink cvSink = CameraServer.getVideo();
-
-              // Setup a CvSource. This will send images back to the Dashboard
-
-              CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
-
-
-              // Mats are very memory expensive. Lets reuse this Mat.
-
-              Mat mat = new Mat();
-
-
-              // This cannot be 'true'. The program will never exit if it is. This
-
-              // lets the robot stop this thread when restarting robot code or
-
-              // deploying.
-
-              while (!Thread.interrupted()) {
-
-                // Tell the CvSink to grab a frame from the camera and put it
-
-                // in the source mat.  If there is an error notify the output.
-
-                if (cvSink.grabFrame(mat) == 0) {
-
-                  // Send the output the error.
-
-                  outputStream.notifyError(cvSink.getError());
-
-                  // skip the rest of the current iteration
-
-                  continue;
-
-                }
-
-                // Put a rectangle on the image
-
-                Imgproc.rectangle(
-
-                    mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
-
-                // Give the output stream a new image to display
-
-                outputStream.putFrame(mat);
-
-              }
-
-            });
-
+      });
     m_visionThread.setDaemon(true);
-
     m_visionThread.start();
   }
+  */
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -214,4 +232,5 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return m_chooser.getSelected();
   }
+
 }
